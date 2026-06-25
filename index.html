@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <!-- Der Viewport-Eintrag verhindert unkontrolliertes Zoomen auf Mobilgeräten -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Spielstand Verwalten</title>
+    <style>
+        /* Verhindert das Zoomen durch Doppelklick auf dem Smartphone */
+        html, body {
+            touch-action: manipulation;
+            font-family: Arial, sans-serif;
+            background-color: #121212;
+            color: #ffffff;
+            margin: 0;
+            padding: 20px;
+        }
+
+        h1 {
+            text-align: center;
+        }
+
+        /* Der Container passt sich flexibel an die Anzahl der Spieler an */
+        #spieler-liste {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            max-width: 400px;
+            margin: 0 auto;
+        }
+
+        .spieler-karte {
+            background-color: #1e1e1e;
+            padding: 15px;
+            border-radius: 8px;
+            border: 1px solid #333;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .spieler-name {
+            font-size: 1.2rem;
+            font-weight: bold;
+        }
+
+        .punkte-kontrolle {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        button {
+            padding: 10px 15px;
+            font-size: 1rem;
+            background-color: #333;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            /* Verhindert Textmarkierung bei schnellen Klicks */
+            user-select: none; 
+        }
+
+        button:active {
+            background-color: #555;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Spielstand</h1>
+
+    <!-- Hier werden die Spieler automatisch reingeladen -->
+    <div id="spieler-liste"></div>
+
+    <script>
+        // HIER DEINE SPIELER EINTRAGEN: 
+        // Du kannst beliebig viele oder wenige Spieler (z.B. nur 2) hinterlegen.
+        const spielerDaten = [
+            { name: "Anna", punkte: 0 },
+            { name: "Ben", punkte: 0 }
+        ];
+
+        const listeContainer = document.getElementById('spieler-liste');
+
+        // Funktion, um die Spieler auf der Seite anzuzeigen
+        function renderSpieler() {
+            listeContainer.innerHTML = ''; // Vorherigen Inhalt leeren
+
+            spielerDaten.forEach((spieler, index) => {
+                const karte = document.createElement('div');
+                karte.className = 'spieler-karte';
+
+                karte.innerHTML = `
+                    <div class="spieler-name">${spieler.name}</div>
+                    <div class="punkte-kontrolle">
+                        <button onclick=" someFunctionToMinus(${index}) ">-</button>
+                        <span id="punkte-${index}">${spieler.punkte}</span>
+                        <button onclick=" punkteAendern(${index}, 1) ">+</button>
+                    </div>
+                `;
+                listeContainer.appendChild(karte);
+            });
+        }
+
+        // Hilfsfunktion zum Punkte verändern
+        window.punkteAendern = function(index, wert) {
+            spielerDaten[index].punkte += wert;
+            document.getElementById(`punkte-${index}`).innerText = spielerDaten[index].punkte;
+        }
+        
+        window.someFunctionToMinus = function(index) {
+            spielerDaten[index].punkte -= 1;
+            document.getElementById(`punkte-${index}`).innerText = spielerDaten[index].punkte;
+        }
+
+        // Beim Start der Seite ausführen
+        renderSpieler();
+    </script>
+</body>
+</html>
