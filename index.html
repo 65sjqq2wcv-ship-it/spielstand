@@ -2,121 +2,278 @@
 <html lang="de">
 <head>
     <meta charset="UTF-8">
-    <!-- Der Viewport-Eintrag verhindert unkontrolliertes Zoomen auf Mobilgeräten -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Spielstand Verwalten</title>
+    <title>MultiScore Flex</title>
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#1a1a1a">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    
     <style>
-        /* Verhindert das Zoomen durch Doppelklick auf dem Smartphone */
-        html, body {
-            touch-action: manipulation;
-            font-family: Arial, sans-serif;
-            background-color: #121212;
-            color: #ffffff;
+        :root {
+            --p1-color: #2ec4b6; /* Türkis */
+            --p2-color: #ff6b6b; /* Koralle */
+            --p3-color: #a29bfe; /* Pastell-Lila */
+            --p4-color: #feca57; /* Sonnengelb */
+        }
+
+        * {
+            box-sizing: border-box;
             margin: 0;
-            padding: 20px;
+            padding: 0;
+            user-select: none;
+            -webkit-user-select: none;
+            -webkit-tap-highlight-color: transparent;
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
         }
 
-        h1 {
-            text-align: center;
+        body, html {
+            height: 100%;
+            background-color: #1a1a1a;
+            overflow: hidden;
         }
 
-        /* Der Container passt sich flexibel an die Anzahl der Spieler an */
-        #spieler-liste {
+        /* Flexibles Grid, das sich per CSS-Klasse anpasst */
+        .grid-container {
+            display: grid;
+            height: 100vh;
+            width: 100vw;
+            transition: all 0.3s ease;
+        }
+
+        /* Layout-Steuerung über Klassen */
+        .grid-container.players-2 {
+            grid-template-columns: 1fr;
+            grid-template-rows: 1fr 1fr;
+        }
+
+        .grid-container.players-3 {
+            grid-template-columns: 1fr 1fr;
+            grid-template-rows: 1fr 1fr;
+        }
+        /* Der 3. Spieler streckt sich bei 3 Spielern über die volle Breite unten */
+        .grid-container.players-3 .player-card:nth-child(3) {
+            grid-column: span 2;
+        }
+
+        .grid-container.players-4 {
+            grid-template-columns: 1fr 1fr;
+            grid-template-rows: 1fr 1fr;
+        }
+
+        .player-card {
             display: flex;
             flex-direction: column;
-            gap: 15px;
-            max-width: 400px;
-            margin: 0 auto;
-        }
-
-        .spieler-karte {
-            background-color: #1e1e1e;
-            padding: 15px;
-            border-radius: 8px;
-            border: 1px solid #333;
-            display: flex;
-            justify-content: space-between;
+            justify-content: center;
             align-items: center;
+            position: relative;
+            color: white;
+            transition: transform 0.05s;
         }
 
-        .spieler-name {
-            font-size: 1.2rem;
-            font-weight: bold;
+        .player-card:active {
+            transform: scale(0.98);
+            filter: brightness(1.1);
         }
 
-        .punkte-kontrolle {
+        /* Spielerfarben */
+        .p1 { background-color: var(--p1-color); }
+        .p2 { background-color: var(--p2-color); }
+        .p3 { background-color: var(--p3-color); }
+        .p4 { background-color: var(--p4-color); }
+
+        .name-label {
+            font-size: 2rem;
+            font-weight: 600;
+            margin-bottom: 5px;
+            opacity: 0.9;
+            background: none;
+            border: none;
+            color: white;
+            text-align: center;
+            width: 80%;
+        }
+
+        .score-value {
+            font-size: clamp(5rem, 18vw, 12rem);
+            font-weight: 800;
+            line-height: 1;
+        }
+
+        /* Korrektur-Button */
+        .minus-btn {
+            position: absolute;
+            bottom: 20px;
+            right: 20px;
+            width: 50px;
+            height: 50px;
+            background: rgba(0, 0, 0, 0.2);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            color: white;
+            font-size: 1.8rem;
             display: flex;
+            justify-content: center;
             align-items: center;
+            z-index: 5;
+            cursor: pointer;
+        }
+
+        /* Zentrale Steuerung */
+        .center-menu {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 10;
+            background: #1a1a1a;
+            padding: 8px;
+            border-radius: 30px;
+            box-shadow: 0 0 20px rgba(0,0,0,0.5);
+            display: flex;
             gap: 10px;
+            align-items: center;
         }
 
-        button {
-            padding: 10px 15px;
-            font-size: 1rem;
-            background-color: #333;
+        .control-btn {
+            background: #333;
+            border: none;
+            color: white;
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            font-size: 1.3rem;
+            cursor: pointer;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        /* Dropdown für die Spieleranzahl */
+        .player-select {
+            background: #333;
             color: white;
             border: none;
-            border-radius: 5px;
+            padding: 10px;
+            border-radius: 20px;
+            font-size: 1rem;
+            font-weight: bold;
+            outline: none;
             cursor: pointer;
-            /* Verhindert Textmarkierung bei schnellen Klicks */
-            user-select: none; 
-        }
-
-        button:active {
-            background-color: #555;
         }
     </style>
 </head>
 <body>
 
-    <h1>Spielstand</h1>
+    <!-- Standardmäßig starten wir mit der Klasse für 2 Spieler -->
+    <div class="grid-container players-2" id="board-grid">
+        
+        <!-- SPIELER 1 -->
+        <div class="player-card p1" id="card-0" onclick="updateScore(0, 1)">
+            <input type="text" class="name-label" value="Ute" onclick="event.stopPropagation()">
+            <div class="score-value" id="s0">0</div>
+            <div class="minus-btn" onclick="event.stopPropagation(); updateScore(0, -1)">−</div>
+        </div>
 
-    <!-- Hier werden die Spieler automatisch reingeladen -->
-    <div id="spieler-liste"></div>
+        <!-- SPIELER 2 -->
+        <div class="player-card p2" id="card-1" onclick="updateScore(1, 1)">
+            <input type="text" class="name-label" value="Michael" onclick="event.stopPropagation()">
+            <div class="score-value" id="s1">0</div>
+            <div class="minus-btn" onclick="event.stopPropagation(); updateScore(1, -1)">−</div>
+        </div>
+
+        <!-- SPIELER 3 (wird dynamisch ein-/ausgeblendet) -->
+        <div class="player-card p3" id="card-2" onclick="updateScore(2, 1)" style="display: none;">
+            <input type="text" class="name-label" value="Spieler 3" onclick="event.stopPropagation()">
+            <div class="score-value" id="s2">0</div>
+            <div class="minus-btn" onclick="event.stopPropagation(); updateScore(2, -1)">−</div>
+        </div>
+
+        <!-- SPIELER 4 (wird dynamisch ein-/ausgeblendet) -->
+        <div class="player-card p4" id="card-3" onclick="updateScore(3, 1)" style="display: none;">
+            <input type="text" class="name-label" value="Spieler 4" onclick="event.stopPropagation()">
+            <div class="score-value" id="s3">0</div>
+            <div class="minus-btn" onclick="event.stopPropagation(); updateScore(3, -1)">−</div>
+        </div>
+    </div>
+
+    <!-- Menüleiste in der Mitte -->
+    <div class="center-menu">
+        <select class="player-select" id="playerCountSelect" onchange="changePlayerCount(this.value)">
+            <option value="2">2 Spieler</option>
+            <option value="3">3 Spieler</option>
+            <option value="4">4 Spieler</option>
+        </select>
+        <button class="control-btn" onclick="resetAll()" title="Reset">↻</button>
+    </div>
 
     <script>
-        // HIER DEINE SPIELER EINTRAGEN: 
-        // Du kannst beliebig viele oder wenige Spieler (z.B. nur 2) hinterlegen.
-        const spielerDaten = [
-            { name: "Anna", punkte: 0 },
-            { name: "Ben", punkte: 0 }
-        ];
+        let scores = [0, 0, 0, 0];
+        let currentPlayerCount = 2;
 
-        const listeContainer = document.getElementById('spieler-liste');
+        window.onload = () => {
+            // Spielstände laden
+            const savedScores = localStorage.getItem('flexscore_values');
+            if (savedScores) {
+                scores = JSON.parse(savedScores);
+                scores.forEach((s, i) => {
+                    const el = document.getElementById(`s${i}`);
+                    if(el) el.innerText = s;
+                });
+            }
 
-        // Funktion, um die Spieler auf der Seite anzuzeigen
-        function renderSpieler() {
-            listeContainer.innerHTML = ''; // Vorherigen Inhalt leeren
+            // Letzte Spieleranzahl laden
+            const savedCount = localStorage.getItem('flexscore_count');
+            if (savedCount) {
+                currentPlayerCount = parseInt(savedCount);
+                document.getElementById('playerCountSelect').value = currentPlayerCount;
+                changePlayerCount(currentPlayerCount);
+            }
+        };
 
-            spielerDaten.forEach((spieler, index) => {
-                const karte = document.createElement('div');
-                karte.className = 'spieler-karte';
-
-                karte.innerHTML = `
-                    <div class="spieler-name">${spieler.name}</div>
-                    <div class="punkte-kontrolle">
-                        <button onclick=" someFunctionToMinus(${index}) ">-</button>
-                        <span id="punkte-${index}">${spieler.punkte}</span>
-                        <button onclick=" punkteAendern(${index}, 1) ">+</button>
-                    </div>
-                `;
-                listeContainer.appendChild(karte);
-            });
+        function changePlayerCount(count) {
+            currentPlayerCount = parseInt(count);
+            const grid = document.getElementById('board-grid');
+            
+            // Grid-Klasse anpassen
+            grid.className = `grid-container players-${currentPlayerCount}`;
+            
+            // Einzelne Karten zeigen oder verstecken
+            for (let i = 0; i < 4; i++) {
+                const card = document.getElementById(`card-${i}`);
+                if (i < currentPlayerCount) {
+                    card.style.display = 'flex';
+                } else {
+                    card.style.display = 'none';
+                }
+            }
+            
+            // Auswahl im Speicher merken
+            localStorage.setItem('flexscore_count', currentPlayerCount);
         }
 
-        // Hilfsfunktion zum Punkte verändern
-        window.punkteAendern = function(index, wert) {
-            spielerDaten[index].punkte += wert;
-            document.getElementById(`punkte-${index}`).innerText = spielerDaten[index].punkte;
-        }
-        
-        window.someFunctionToMinus = function(index) {
-            spielerDaten[index].punkte -= 1;
-            document.getElementById(`punkte-${index}`).innerText = spielerDaten[index].punkte;
+        function updateScore(idx, val) {
+            scores[idx] = Math.max(0, scores[idx] + val);
+            document.getElementById(`s${idx}`).innerText = scores[idx];
+            localStorage.setItem('flexscore_values', JSON.stringify(scores));
+            
+            if (window.navigator.vibrate) window.navigator.vibrate(20);
         }
 
-        // Beim Start der Seite ausführen
-        renderSpieler();
+        function resetAll() {
+            if (confirm("Alle sichtbaren Spielstände zurücksetzen?")) {
+                // Nur die gerade aktiven Spieler zurücksetzen
+                for(let i = 0; i < currentPlayerCount; i++) {
+                    scores[i] = 0;
+                    document.getElementById(`s${i}`).innerText = 0;
+                }
+                localStorage.setItem('flexscore_values', JSON.stringify(scores));
+            }
+        }
+
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('sw.js');
+        }
     </script>
 </body>
 </html>
