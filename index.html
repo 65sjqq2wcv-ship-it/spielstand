@@ -5,15 +5,15 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>MultiScore Flex</title>
     
-    <link rel="manifest" href="manifest.json?v=4">
+    <link rel="manifest" href="manifest.json?v=5">
     
-    <link rel="apple-touch-icon" href="icon.png?v=4">
-    <link rel="apple-touch-icon" sizes="152x152" href="icon.png?v=4">
-    <link rel="apple-touch-icon" sizes="180x180" href="icon.png?v=4">
+    <link rel="apple-touch-icon" href="icon.png?v=5">
+    <link rel="apple-touch-icon" sizes="152x152" href="icon.png?v=5">
+    <link rel="apple-touch-icon" sizes="180x180" href="icon.png?v=5">
 
-    <link rel="icon" type="image/png" sizes="32x32" href="icon.png?v=4">
-    <link rel="icon" type="image/png" sizes="192x192" href="icon.png?v=4">
-    <link rel="icon" type="image/png" sizes="512x512" href="icon.png?v=4">
+    <link rel="icon" type="image/png" sizes="32x32" href="icon.png?v=5">
+    <link rel="icon" type="image/png" sizes="192x192" href="icon.png?v=5">
+    <link rel="icon" type="image/png" sizes="512x512" href="icon.png?v=5">
     
     <meta name="theme-color" content="#1a1a1a">
     <meta name="apple-mobile-web-app-capable" content="yes">
@@ -41,12 +41,14 @@
             height: 100vh;
             height: 100dvh;
             width: 100vw;
-            background-color: #1a1a1a;
+            /* Der Body übernimmt dynamisch per JS die Farbe des untersten Spielers */
+            background-color: var(--p2-color); 
             overflow: hidden;
             position: relative;
+            transition: background-color 0.2s ease-out;
         }
 
-        /* Das Haupt-Grid geht jetzt ungestört bis ganz an den Rand (Keine Balken!) */
+        /* Das Haupt-Grid füllt den Screen optimal aus */
         .grid-container {
             display: grid;
             height: 100%;
@@ -69,7 +71,7 @@
             grid-column: span 2;
         }
 
-        /* 4 Spieler: 2x2 Kacheln */
+        /* 4 Spieler */
         .grid-container.players-4 {
             grid-template-columns: 1fr 1fr;
             grid-template-rows: 1fr 1fr;
@@ -93,17 +95,14 @@
         .p3 { background-color: var(--p3-color); }
         .p4 { background-color: var(--p4-color); }
 
-        /* DYNAMISCHER SCHUTZ FÜR NOTCH & STATUSLEISTE */
-        /* Im 2-Spieler-Modus schützt Reihe 1 (Card 0) die Statusleiste */
+        /* SCHUTZ-PADDING FÜR DIE OBERE STATUSLEISTE / NOTCH */
         .players-2 #card-0 { padding-top: calc(20px + env(safe-area-inset-top)); }
-        /* Im 3- und 4-Spieler-Modus schützt Reihe 1 (Card 0 & Card 1) die Statusleiste */
         .players-3 #card-0, .players-3 #card-1,
         .players-4 #card-0, .players-4 #card-1 { 
             padding-top: calc(20px + env(safe-area-inset-top)); 
         }
 
-        /* DYNAMISCHER SCHUTZ FÜR DIE UNTERE HOME-BAR */
-        /* Je nachdem, wer ganz unten auf dem Bildschirm sitzt, bekommt ein unteres Padding */
+        /* PADDING-SCHUTZ FÜR DIE UNTERE HOME-BAR GESTENSTEUERUNG */
         .players-2 #card-1 { padding-bottom: calc(20px + env(safe-area-inset-bottom)); }
         .players-3 #card-2 { padding-bottom: calc(20px + env(safe-area-inset-bottom)); }
         .players-4 #card-2, .players-4 #card-3 { padding-bottom: calc(20px + env(safe-area-inset-bottom)); }
@@ -128,7 +127,7 @@
             text-shadow: 0 2px 5px rgba(0,0,0,0.1);
         }
 
-        /* Minus-Buttons passen sich der Home-Bar unten an */
+        /* Minus-Buttons wandern automatisch über die Home-Bar, damit sie klickbar sind */
         .minus-btn {
             position: absolute;
             bottom: 15px;
@@ -151,14 +150,13 @@
             background: rgba(0, 0, 0, 0.35);
         }
 
-        /* Wenn die Kachel ganz unten ist, wandert der Minus-Button leicht hoch, damit er bedienbar bleibt */
         .players-2 #card-1 .minus-btn,
         .players-3 #card-2 .minus-btn,
         .players-4 #card-2 .minus-btn, .players-4 #card-3 .minus-btn {
             bottom: calc(15px + env(safe-area-inset-bottom));
         }
 
-        /* Menü perfekt im echten Mittelpunkt */
+        /* Menü perfekt im Zentrum */
         .center-menu {
             position: absolute;
             top: 50%;
@@ -201,7 +199,7 @@
             font-weight: bold;
             outline: none;
             cursor: pointer;
-            -webkit-appearance: none; /* Entfernt iOS Standard-Pfeil-Design */
+            -webkit-appearance: none;
             appearance: none;
         }
     </style>
@@ -269,13 +267,22 @@
             currentPlayerCount = parseInt(count);
             const grid = document.getElementById('board-grid');
             
-            // Ändert die CSS Klasse (löst die dynamischen Paddings aus!)
             grid.className = `grid-container players-${currentPlayerCount}`;
             
             for (let i = 0; i < 4; i++) {
                 const card = document.getElementById(`card-${i}`);
                 card.style.display = i < currentPlayerCount ? 'flex' : 'none';
             }
+            
+            // Passt die Hintergrundfarbe der App dynamisch an das unterste Feld an
+            if (currentPlayerCount === 2) {
+                document.body.style.backgroundColor = "var(--p2-color)"; // Koralle für Michael
+            } else if (currentPlayerCount === 3) {
+                document.body.style.backgroundColor = "var(--p3-color)"; // Lila für Spieler 3
+            } else if (currentPlayerCount === 4) {
+                document.body.style.backgroundColor = "var(--p4-color)"; // Gelb für Spieler 4
+            }
+            
             localStorage.setItem('flexscore_count', currentPlayerCount);
         }
 
