@@ -5,15 +5,15 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>MultiScore Flex</title>
     
-    <link rel="manifest" href="manifest.json?v=6">
+    <link rel="manifest" href="manifest.json?v=7">
     
-    <link align="apple-touch-icon" href="icon.png?v=6">
-    <link rel="apple-touch-icon" sizes="152x152" href="icon.png?v=6">
-    <link rel="apple-touch-icon" sizes="180x180" href="icon.png?v=6">
+    <link rel="apple-touch-icon" href="icon.png?v=7">
+    <link rel="apple-touch-icon" sizes="152x152" href="icon.png?v=7">
+    <link rel="apple-touch-icon" sizes="180x180" href="icon.png?v=7">
 
-    <link rel="icon" type="image/png" sizes="32x32" href="icon.png?v=6">
-    <link rel="icon" type="image/png" sizes="192x192" href="icon.png?v=6">
-    <link rel="icon" type="image/png" sizes="512x512" href="icon.png?v=6">
+    <link rel="icon" type="image/png" sizes="32x32" href="icon.png?v=7">
+    <link rel="icon" type="image/png" sizes="192x192" href="icon.png?v=7">
+    <link rel="icon" type="image/png" sizes="512x512" href="icon.png?v=7">
     
     <meta id="meta-theme-color" name="theme-color" content="#2ec4b6">
     <meta name="apple-mobile-web-app-capable" content="yes">
@@ -41,8 +41,7 @@
             height: 100vh;
             height: 100dvh;
             width: 100vw;
-            /* Start-Verlauf: Oben Türkis, unten Koralle. Wird per JS angepasst. */
-            background: linear-gradient(to bottom, var(--p1-color) 50%, var(--p2-color) 50%);
+            background-color: #1a1a1a; /* Sicheres, dunkles Anthrazit statt weißem Fallback */
             overflow: hidden;
             position: relative;
         }
@@ -274,15 +273,8 @@
                 card.style.display = i < currentPlayerCount ? 'flex' : 'none';
             }
             
-            // Perfekte farbliche Trennung für den Hintergrund (Oben vs. Unten) + Browserleiste
-            if (currentPlayerCount === 2) {
-                document.body.style.background = "linear-gradient(to bottom, #2ec4b6 50%, #ff6b6b 50%)";
-                themeMeta.setAttribute('content', '#2ec4b6'); // Oben bleibt türkis
-            } else if (currentPlayerCount === 3) {
-                document.body.style.background = "linear-gradient(to bottom, #2ec4b6 50%, #a29bfe 50%)";
-                themeMeta.setAttribute('content', '#2ec4b6'); 
-            } else if (currentPlayerCount === 4) {
-                document.body.style.background = "linear-gradient(to bottom, #2ec4b6 50%, #feca57 50%)";
+            // Setzt das obere Meta-Tag zuverlässig auf das Türkis von Ute/Spieler 1
+            if (themeMeta) {
                 themeMeta.setAttribute('content', '#2ec4b6');
             }
             
