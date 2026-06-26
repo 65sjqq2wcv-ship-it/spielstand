@@ -5,17 +5,17 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>MultiScore Flex</title>
     
-    <link rel="manifest" href="manifest.json?v=5">
+    <link rel="manifest" href="manifest.json?v=6">
     
-    <link rel="apple-touch-icon" href="icon.png?v=5">
-    <link rel="apple-touch-icon" sizes="152x152" href="icon.png?v=5">
-    <link rel="apple-touch-icon" sizes="180x180" href="icon.png?v=5">
+    <link align="apple-touch-icon" href="icon.png?v=6">
+    <link rel="apple-touch-icon" sizes="152x152" href="icon.png?v=6">
+    <link rel="apple-touch-icon" sizes="180x180" href="icon.png?v=6">
 
-    <link rel="icon" type="image/png" sizes="32x32" href="icon.png?v=5">
-    <link rel="icon" type="image/png" sizes="192x192" href="icon.png?v=5">
-    <link rel="icon" type="image/png" sizes="512x512" href="icon.png?v=5">
+    <link rel="icon" type="image/png" sizes="32x32" href="icon.png?v=6">
+    <link rel="icon" type="image/png" sizes="192x192" href="icon.png?v=6">
+    <link rel="icon" type="image/png" sizes="512x512" href="icon.png?v=6">
     
-    <meta name="theme-color" content="#1a1a1a">
+    <meta id="meta-theme-color" name="theme-color" content="#2ec4b6">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     
@@ -41,11 +41,10 @@
             height: 100vh;
             height: 100dvh;
             width: 100vw;
-            /* Der Body übernimmt dynamisch per JS die Farbe des untersten Spielers */
-            background-color: var(--p2-color); 
+            /* Start-Verlauf: Oben Türkis, unten Koralle. Wird per JS angepasst. */
+            background: linear-gradient(to bottom, var(--p1-color) 50%, var(--p2-color) 50%);
             overflow: hidden;
             position: relative;
-            transition: background-color 0.2s ease-out;
         }
 
         /* Das Haupt-Grid füllt den Screen optimal aus */
@@ -266,6 +265,7 @@
         function changePlayerCount(count) {
             currentPlayerCount = parseInt(count);
             const grid = document.getElementById('board-grid');
+            const themeMeta = document.getElementById('meta-theme-color');
             
             grid.className = `grid-container players-${currentPlayerCount}`;
             
@@ -274,13 +274,16 @@
                 card.style.display = i < currentPlayerCount ? 'flex' : 'none';
             }
             
-            // Passt die Hintergrundfarbe der App dynamisch an das unterste Feld an
+            // Perfekte farbliche Trennung für den Hintergrund (Oben vs. Unten) + Browserleiste
             if (currentPlayerCount === 2) {
-                document.body.style.backgroundColor = "var(--p2-color)"; // Koralle für Michael
+                document.body.style.background = "linear-gradient(to bottom, #2ec4b6 50%, #ff6b6b 50%)";
+                themeMeta.setAttribute('content', '#2ec4b6'); // Oben bleibt türkis
             } else if (currentPlayerCount === 3) {
-                document.body.style.backgroundColor = "var(--p3-color)"; // Lila für Spieler 3
+                document.body.style.background = "linear-gradient(to bottom, #2ec4b6 50%, #a29bfe 50%)";
+                themeMeta.setAttribute('content', '#2ec4b6'); 
             } else if (currentPlayerCount === 4) {
-                document.body.style.backgroundColor = "var(--p4-color)"; // Gelb für Spieler 4
+                document.body.style.background = "linear-gradient(to bottom, #2ec4b6 50%, #feca57 50%)";
+                themeMeta.setAttribute('content', '#2ec4b6');
             }
             
             localStorage.setItem('flexscore_count', currentPlayerCount);
