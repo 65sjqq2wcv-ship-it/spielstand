@@ -9,6 +9,7 @@
     
     <link rel="apple-touch-icon" href="icon.png">
     <link rel="apple-touch-icon" sizes="152x152" href="icon.png">
+    <link rel="apple-touch-icon" sizes="167x167" href="icon.png">
     <link rel="apple-touch-icon" sizes="180x180" href="icon.png">
 
     <link rel="icon" type="image/png" sizes="32x32" href="icon.png">
@@ -38,23 +39,25 @@
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
         }
 
-        /* iOS Vollbild-Fix: min-height füllt den echten Viewport ohne Ränder */
-        body, html {
+        /* html und body bekommen einen dynamischen Farb-Fallback via JS */
+        html, body {
             height: 100%;
-            min-height: 100vh;
-            min-height: -webkit-fill-available;
-            width: 100vw;
-            background-color: #1a1a1a;
+            width: 100%;
             overflow: hidden;
             position: relative;
+            background-color: #1a1a1a;
         }
 
-        /* Der Grid-Container nutzt die volle dynamische iOS-Höhe */
+        /* Absolute Streckung über alle physikalischen iOS-Grenzen hinweg */
         .grid-container {
             display: grid;
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
             width: 100%;
             height: 100%;
-            height: -webkit-fill-available;
             transition: all 0.2s ease-out;
         }
 
@@ -129,7 +132,7 @@
             text-shadow: 0 2px 5px rgba(0,0,0,0.1);
         }
 
-        /* Minus-Buttons wandern automatisch über die Home-Bar, damit sie klickbar sind */
+        /* Minus-Buttons */
         .minus-btn {
             position: absolute;
             bottom: 15px;
@@ -158,7 +161,7 @@
             bottom: calc(15px + env(safe-area-inset-bottom));
         }
 
-        /* Menü perfekt im Zentrum */
+        /* Menü im Zentrum */
         .center-menu {
             position: absolute;
             top: 50%;
@@ -277,9 +280,19 @@
                 card.style.display = i < currentPlayerCount ? 'flex' : 'none';
             }
             
-            // Setzt das obere Meta-Tag zuverlässig auf das Türkis von Ute/Spieler 1
+            // DER IOS SAFE-AREA-FIX:
+            // Wir färben das HTML-Dokument im Hintergrund dynamisch in der Farbe des untersten Spielers ein.
+            // Damit ist ein schwarzer Balken technisch unmöglich.
+            if (currentPlayerCount === 2) {
+                document.documentElement.style.backgroundColor = '#ff6b6b'; // Koralle (Michael)
+            } else if (currentPlayerCount === 3) {
+                document.documentElement.style.backgroundColor = '#a29bfe'; // Lila (Spieler 3)
+            } else if (currentPlayerCount === 4) {
+                document.documentElement.style.backgroundColor = '#feca57'; // Gelb (Spieler 4)
+            }
+            
             if (themeMeta) {
-                themeMeta.setAttribute('content', '#2ec4b6');
+                themeMeta.setAttribute('content', '#2ec4b6'); // Statusleiste oben bleibt Türkis
             }
             
             localStorage.setItem('flexscore_count', currentPlayerCount);
