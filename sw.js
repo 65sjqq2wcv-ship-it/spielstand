@@ -1,5 +1,5 @@
-// Ändere einfach diese Versionsnummer (z.B. zu v3), wenn du Code-Änderungen erzwingen willst!
-const CACHE_NAME = 'scoreflex-v2.1'; 
+// Neue Versionsnummer, um den Cache auf dem Handy hart zurückzusetzen
+const CACHE_NAME = 'scoreflex-v3.0'; 
 const ASSETS = [
   'index.html',
   'manifest.json'
@@ -12,8 +12,7 @@ self.addEventListener('install', e => {
       return cache.addAll(ASSETS);
     })
   );
-  // Aktiviert den neuen Service Worker sofort, ohne auf das Schließen der App zu warten
-  self.skipWaiting(); 
+  self.skipWaiting(); // Aktiviert den neuen Service Worker ohne Verzögerung
 });
 
 // Altes Cache-Aufräumen bei Updates
@@ -29,11 +28,10 @@ self.addEventListener('activate', e => {
       );
     })
   );
-  // Übernimmt sofort die Kontrolle über alle offenen Tabs/Anwendungen
-  self.clients.claim(); 
+  self.clients.claim(); // Übernimmt sofort die Kontrolle über die PWA
 });
 
-// Netzwerk-Anfragen abfangen (Network-First mit Cache-Fallback für maximale Stabilität)
+// Netzwerk-Zuerst-Strategie mit Cache-Fallback (Sorgt für reibungslose Updates bei Internet)
 self.addEventListener('fetch', e => {
   e.respondWith(
     fetch(e.request).catch(() => {
