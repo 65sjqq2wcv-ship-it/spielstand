@@ -5,15 +5,15 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>MultiScore Flex</title>
     
-    <link rel="manifest" href="manifest.json?v=3">
+    <link rel="manifest" href="manifest.json?v=4">
     
-    <link rel="apple-touch-icon" href="icon.png?v=3">
-    <link rel="apple-touch-icon" sizes="152x152" href="icon.png?v=3">
-    <link rel="apple-touch-icon" sizes="180x180" href="icon.png?v=3">
+    <link rel="apple-touch-icon" href="icon.png?v=4">
+    <link rel="apple-touch-icon" sizes="152x152" href="icon.png?v=4">
+    <link rel="apple-touch-icon" sizes="180x180" href="icon.png?v=4">
 
-    <link rel="icon" type="image/png" sizes="32x32" href="icon.png?v=3">
-    <link rel="icon" type="image/png" sizes="192x192" href="icon.png?v=3">
-    <link rel="icon" type="image/png" sizes="512x512" href="icon.png?v=3">
+    <link rel="icon" type="image/png" sizes="32x32" href="icon.png?v=4">
+    <link rel="icon" type="image/png" sizes="192x192" href="icon.png?v=4">
+    <link rel="icon" type="image/png" sizes="512x512" href="icon.png?v=4">
     
     <meta name="theme-color" content="#1a1a1a">
     <meta name="apple-mobile-web-app-capable" content="yes">
@@ -39,30 +39,28 @@
 
         body, html {
             height: 100vh;
-            height: 100dvh; /* Erzwingt die exakte sichtbare Höhe auf iOS & Android */
+            height: 100dvh;
             width: 100vw;
             background-color: #1a1a1a;
             overflow: hidden;
             position: relative;
         }
 
-        /* Das Haupt-Grid füllt exakt den sichtbaren Bildschirm aus unter Berücksichtigung von Notch/Statusleiste */
+        /* Das Haupt-Grid geht jetzt ungestört bis ganz an den Rand (Keine Balken!) */
         .grid-container {
             display: grid;
             height: 100%;
             width: 100%;
             transition: all 0.2s ease-out;
-            padding-top: env(safe-area-inset-top);
-            padding-bottom: env(safe-area-inset-bottom);
         }
 
-        /* 2 Spieler: Zwei Zeilen, absolut gleichmäßig aufgeteilt */
+        /* 2 Spieler: Zwei Zeilen */
         .grid-container.players-2 {
             grid-template-columns: 1fr;
             grid-template-rows: 1fr 1fr;
         }
 
-        /* 3 Spieler: Reihe 1 hat zwei Spalten, Reihe 2 eine gestreckte Spalte */
+        /* 3 Spieler */
         .grid-container.players-3 {
             grid-template-columns: 1fr 1fr;
             grid-template-rows: 1fr 1fr;
@@ -71,12 +69,13 @@
             grid-column: span 2;
         }
 
-        /* 4 Spieler: 2x2 Kacheln jeweils exakt gleich groß */
+        /* 4 Spieler: 2x2 Kacheln */
         .grid-container.players-4 {
             grid-template-columns: 1fr 1fr;
             grid-template-rows: 1fr 1fr;
         }
 
+        /* Allgemeine Spieler-Kachel */
         .player-card {
             display: flex;
             flex-direction: column;
@@ -86,13 +85,28 @@
             color: white;
             width: 100%;
             height: 100%;
-            padding: 10px;
+            padding: 20px;
         }
 
         .p1 { background-color: var(--p1-color); }
         .p2 { background-color: var(--p2-color); }
         .p3 { background-color: var(--p3-color); }
         .p4 { background-color: var(--p4-color); }
+
+        /* DYNAMISCHER SCHUTZ FÜR NOTCH & STATUSLEISTE */
+        /* Im 2-Spieler-Modus schützt Reihe 1 (Card 0) die Statusleiste */
+        .players-2 #card-0 { padding-top: calc(20px + env(safe-area-inset-top)); }
+        /* Im 3- und 4-Spieler-Modus schützt Reihe 1 (Card 0 & Card 1) die Statusleiste */
+        .players-3 #card-0, .players-3 #card-1,
+        .players-4 #card-0, .players-4 #card-1 { 
+            padding-top: calc(20px + env(safe-area-inset-top)); 
+        }
+
+        /* DYNAMISCHER SCHUTZ FÜR DIE UNTERE HOME-BAR */
+        /* Je nachdem, wer ganz unten auf dem Bildschirm sitzt, bekommt ein unteres Padding */
+        .players-2 #card-1 { padding-bottom: calc(20px + env(safe-area-inset-bottom)); }
+        .players-3 #card-2 { padding-bottom: calc(20px + env(safe-area-inset-bottom)); }
+        .players-4 #card-2, .players-4 #card-3 { padding-bottom: calc(20px + env(safe-area-inset-bottom)); }
 
         .name-label {
             font-size: clamp(1.4rem, 4.5vh, 2.2rem);
@@ -114,7 +128,7 @@
             text-shadow: 0 2px 5px rgba(0,0,0,0.1);
         }
 
-        /* Korrektur-Button dezent unten rechts platziert */
+        /* Minus-Buttons passen sich der Home-Bar unten an */
         .minus-btn {
             position: absolute;
             bottom: 15px;
@@ -137,7 +151,14 @@
             background: rgba(0, 0, 0, 0.35);
         }
 
-        /* Das zentrierte Menü bleibt immer exakt im echten Mittelpunkt der App */
+        /* Wenn die Kachel ganz unten ist, wandert der Minus-Button leicht hoch, damit er bedienbar bleibt */
+        .players-2 #card-1 .minus-btn,
+        .players-3 #card-2 .minus-btn,
+        .players-4 #card-2 .minus-btn, .players-4 #card-3 .minus-btn {
+            bottom: calc(15px + env(safe-area-inset-bottom));
+        }
+
+        /* Menü perfekt im echten Mittelpunkt */
         .center-menu {
             position: absolute;
             top: 50%;
@@ -180,6 +201,8 @@
             font-weight: bold;
             outline: none;
             cursor: pointer;
+            -webkit-appearance: none; /* Entfernt iOS Standard-Pfeil-Design */
+            appearance: none;
         }
     </style>
 </head>
@@ -239,13 +262,14 @@
                 currentPlayerCount = parseInt(savedCount);
                 document.getElementById('playerCountSelect').value = currentPlayerCount;
             }
-            // Immer ausführen, um das Grid initial korrekt zu zeichnen
             changePlayerCount(currentPlayerCount);
         };
 
         function changePlayerCount(count) {
             currentPlayerCount = parseInt(count);
             const grid = document.getElementById('board-grid');
+            
+            // Ändert die CSS Klasse (löst die dynamischen Paddings aus!)
             grid.className = `grid-container players-${currentPlayerCount}`;
             
             for (let i = 0; i < 4; i++) {
