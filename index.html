@@ -5,15 +5,15 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>MultiScore Flex</title>
     
-    <link rel="manifest" href="manifest.json?v=7">
+    <link rel="manifest" href="manifest.json?v=8">
     
-    <link rel="apple-touch-icon" href="icon.png?v=7">
-    <link rel="apple-touch-icon" sizes="152x152" href="icon.png?v=7">
-    <link rel="apple-touch-icon" sizes="180x180" href="icon.png?v=7">
+    <link rel="apple-touch-icon" href="icon.png?v=8">
+    <link rel="apple-touch-icon" sizes="152x152" href="icon.png?v=8">
+    <link rel="apple-touch-icon" sizes="180x180" href="icon.png?v=8">
 
-    <link rel="icon" type="image/png" sizes="32x32" href="icon.png?v=7">
-    <link rel="icon" type="image/png" sizes="192x192" href="icon.png?v=7">
-    <link rel="icon" type="image/png" sizes="512x512" href="icon.png?v=7">
+    <link rel="icon" type="image/png" sizes="32x32" href="icon.png?v=8">
+    <link rel="icon" type="image/png" sizes="192x192" href="icon.png?v=8">
+    <link rel="icon" type="image/png" sizes="512x512" href="icon.png?v=8">
     
     <meta id="meta-theme-color" name="theme-color" content="#2ec4b6">
     <meta name="apple-mobile-web-app-capable" content="yes">
@@ -38,18 +38,21 @@
         }
 
         body, html {
-            height: 100vh;
-            height: 100dvh;
-            width: 100vw;
-            background-color: #1a1a1a; /* Sicheres, dunkles Anthrazit statt weißem Fallback */
+            height: 100%;
+            width: 100%;
+            background-color: #1a1a1a; /* Neutrale Fallback-Farbe */
             overflow: hidden;
             position: relative;
         }
 
-        /* Das Haupt-Grid füllt den Screen optimal aus */
+        /* ABSOLUTE FIXIERUNG: Zwingt das Spielfeld bis an die physikalischen Ränder des iPhones */
         .grid-container {
             display: grid;
-            height: 100%;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
             width: 100%;
             transition: all 0.2s ease-out;
         }
