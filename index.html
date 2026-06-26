@@ -2,9 +2,13 @@
 <html lang="de">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>MultiScore Flex</title>
+    
     <link rel="manifest" href="manifest.json">
+    <link rel="apple-touch-icon" href="icon.png">
+    <link rel="icon" type="image/png" href="icon.png">
+    
     <meta name="theme-color" content="#1a1a1a">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -31,17 +35,18 @@
             height: 100%;
             background-color: #1a1a1a;
             overflow: hidden;
+            /* Sorgt bei iPhones dafür, dass der Inhalt unter der Statusleiste liegt */
+            padding-top: env(safe-area-inset-top); 
         }
 
-        /* Flexibles Grid, das sich per CSS-Klasse anpasst */
         .grid-container {
             display: grid;
             height: 100vh;
             width: 100vw;
-            transition: all 0.3s ease;
+            transition: all 0.25s ease-out;
         }
 
-        /* Layout-Steuerung über Klassen */
+        /* Layout-Steuerung */
         .grid-container.players-2 {
             grid-template-columns: 1fr;
             grid-template-rows: 1fr 1fr;
@@ -51,7 +56,6 @@
             grid-template-columns: 1fr 1fr;
             grid-template-rows: 1fr 1fr;
         }
-        /* Der 3. Spieler streckt sich bei 3 Spielern über die volle Breite unten */
         .grid-container.players-3 .player-card:nth-child(3) {
             grid-column: span 2;
         }
@@ -76,7 +80,6 @@
             filter: brightness(1.1);
         }
 
-        /* Spielerfarben */
         .p1 { background-color: var(--p1-color); }
         .p2 { background-color: var(--p2-color); }
         .p3 { background-color: var(--p3-color); }
@@ -100,7 +103,6 @@
             line-height: 1;
         }
 
-        /* Korrektur-Button */
         .minus-btn {
             position: absolute;
             bottom: 20px;
@@ -149,7 +151,6 @@
             align-items: center;
         }
 
-        /* Dropdown für die Spieleranzahl */
         .player-select {
             background: #333;
             color: white;
@@ -165,31 +166,25 @@
 </head>
 <body>
 
-    <!-- Standardmäßig starten wir mit der Klasse für 2 Spieler -->
     <div class="grid-container players-2" id="board-grid">
-        
-        <!-- SPIELER 1 -->
         <div class="player-card p1" id="card-0" onclick="updateScore(0, 1)">
             <input type="text" class="name-label" value="Ute" onclick="event.stopPropagation()">
             <div class="score-value" id="s0">0</div>
             <div class="minus-btn" onclick="event.stopPropagation(); updateScore(0, -1)">−</div>
         </div>
 
-        <!-- SPIELER 2 -->
         <div class="player-card p2" id="card-1" onclick="updateScore(1, 1)">
             <input type="text" class="name-label" value="Michael" onclick="event.stopPropagation()">
             <div class="score-value" id="s1">0</div>
             <div class="minus-btn" onclick="event.stopPropagation(); updateScore(1, -1)">−</div>
         </div>
 
-        <!-- SPIELER 3 (wird dynamisch ein-/ausgeblendet) -->
         <div class="player-card p3" id="card-2" onclick="updateScore(2, 1)" style="display: none;">
             <input type="text" class="name-label" value="Spieler 3" onclick="event.stopPropagation()">
             <div class="score-value" id="s2">0</div>
             <div class="minus-btn" onclick="event.stopPropagation(); updateScore(2, -1)">−</div>
         </div>
 
-        <!-- SPIELER 4 (wird dynamisch ein-/ausgeblendet) -->
         <div class="player-card p4" id="card-3" onclick="updateScore(3, 1)" style="display: none;">
             <input type="text" class="name-label" value="Spieler 4" onclick="event.stopPropagation()">
             <div class="score-value" id="s3">0</div>
@@ -197,7 +192,6 @@
         </div>
     </div>
 
-    <!-- Menüleiste in der Mitte -->
     <div class="center-menu">
         <select class="player-select" id="playerCountSelect" onchange="changePlayerCount(this.value)">
             <option value="2">2 Spieler</option>
@@ -212,7 +206,6 @@
         let currentPlayerCount = 2;
 
         window.onload = () => {
-            // Spielstände laden
             const savedScores = localStorage.getItem('flexscore_values');
             if (savedScores) {
                 scores = JSON.parse(savedScores);
@@ -222,7 +215,6 @@
                 });
             }
 
-            // Letzte Spieleranzahl laden
             const savedCount = localStorage.getItem('flexscore_count');
             if (savedCount) {
                 currentPlayerCount = parseInt(savedCount);
@@ -234,21 +226,12 @@
         function changePlayerCount(count) {
             currentPlayerCount = parseInt(count);
             const grid = document.getElementById('board-grid');
-            
-            // Grid-Klasse anpassen
             grid.className = `grid-container players-${currentPlayerCount}`;
             
-            // Einzelne Karten zeigen oder verstecken
             for (let i = 0; i < 4; i++) {
                 const card = document.getElementById(`card-${i}`);
-                if (i < currentPlayerCount) {
-                    card.style.display = 'flex';
-                } else {
-                    card.style.display = 'none';
-                }
+                card.style.display = i < currentPlayerCount ? 'flex' : 'none';
             }
-            
-            // Auswahl im Speicher merken
             localStorage.setItem('flexscore_count', currentPlayerCount);
         }
 
@@ -256,13 +239,11 @@
             scores[idx] = Math.max(0, scores[idx] + val);
             document.getElementById(`s${idx}`).innerText = scores[idx];
             localStorage.setItem('flexscore_values', JSON.stringify(scores));
-            
             if (window.navigator.vibrate) window.navigator.vibrate(20);
         }
 
         function resetAll() {
             if (confirm("Alle sichtbaren Spielstände zurücksetzen?")) {
-                // Nur die gerade aktiven Spieler zurücksetzen
                 for(let i = 0; i < currentPlayerCount; i++) {
                     scores[i] = 0;
                     document.getElementById(`s${i}`).innerText = 0;
@@ -271,8 +252,20 @@
             }
         }
 
+        // STABILER UPGRADE-HANDLER FÜR DEN SERVICE WORKER
         if ('serviceWorker' in navigator) {
-            navigator.serviceWorker.register('sw.js');
+            navigator.serviceWorker.register('sw.js').then(reg => {
+                // Prüft im Hintergrund auf Updates
+                reg.addEventListener('updatefound', () => {
+                    const newWorker = reg.installing;
+                    newWorker.addEventListener('statechange', () => {
+                        if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                            // Erzwingt das Neuladen der Seite, sobald das Update bereitsteht
+                            window.location.reload();
+                        }
+                    });
+                });
+            });
         }
     </script>
 </body>
